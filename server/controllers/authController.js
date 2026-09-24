@@ -27,3 +27,19 @@ function setAuthCookies(res, userId, remember) {
         { ...cookieBase, maxAge: 30 * 24 * 60 * 60 * 1000 }
     )
 }
+
+export const register = async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required' });
+    }
+
+    try {
+        const user = await User.create({ username, password });
+        return res.status(201).json({ username: user.username });
+    } catch (error) {
+        if (error.code === 11000) return res.status(409).json({ message: 'Username already exists' });
+        else if (error.name === 'ValidationError') return res.status(400).json({ message: error.message });
+        else return res.status(500).json({ message: 'Internal server error' });
+    }
+}
