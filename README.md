@@ -22,9 +22,9 @@ Base URL: `http://localhost:5000/api`
 
 | Method | Endpoint | Auth | Body | Description |
 |--------|----------|------|------|-------------|
-| POST | `/auth/register` | No | `name`, `email`, `password` | Create account |
-| POST | `/auth/login` | No | `email`, `password`, `rememberMe`? | Log in, sets access + refresh cookies |
-| POST | `/auth/refresh` | Refresh cookie | none | Issue a new access token |
+| POST | `/auth/register` | No | `username`, `password` | Create account |
+| POST | `/auth/login` | No | `username`, `password`, `rememberMe`? | Log in, sets access + refresh cookies |
+| POST | `/auth/refresh` | none | none | Issue a new access token |
 | POST | `/auth/logout` | Yes | none | Clear both cookies |
 | GET | `/auth/me` | Yes | none | Current user |
 
