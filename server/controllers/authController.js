@@ -45,7 +45,7 @@ export const login = async (req, res) => {
     res.cookie(
         'refresh_token',
         refreshToken,
-        { ...cookieBase, maxAge: 30 * 24 * 60 * 60 * 1000 }
+        { ...cookieBase, maxAge: 30 * 24 * 60 * 60 * 1000, path: '/api/auth' }
     );
 
     res.json({ username });
