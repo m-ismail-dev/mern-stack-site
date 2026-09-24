@@ -78,3 +78,10 @@ export const logout = async (req, res) => {
     res.clearCookie('refresh_token', { ...cookieBase, path: 'api/auth' })
     res.sendStatus(204);
 }
+
+export const me = async (req, res) => {
+    const user = User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ username: user.username });
+}
