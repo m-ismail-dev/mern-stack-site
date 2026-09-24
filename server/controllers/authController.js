@@ -5,13 +5,13 @@ const cookieBase = { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_E
 
 const singAccess = id => jwt.sign(
     { sub: id },
-    process.env.JWT_ACCESS_TOKEN,
+    process.env.JWT_ACCESS_SECRET,
     { expiresIn: process.env.JWT_ACCESS_EXPIRY }
 )
 
 const signRefresh = (id, remember) => jwt.sign(
     { sub: id },
-    process.env.JWT_REFRESH_TOKEN,
+    process.env.JWT_REFRESH_SECRET,
     { expiresIn: process.env['JWT_REFRESH_EXPIRY' + remember ? '_REMEMBER' : ''] }
 )
 
