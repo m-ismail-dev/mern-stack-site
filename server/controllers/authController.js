@@ -41,3 +41,14 @@ export const register = async (req, res) => {
         else return res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+export const login = async (req, res) => {
+    const { username, password, rememberMe } = req.body;
+    if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
+
+    const user = User.findOne({ username }).select('+password')
+    if (user?.matchPassword(password)) res.status(401).json({ message: 'Invalid credentials' });
+
+    setAuthCookies(res, user.id, rememberMe);
+    res.json({ username })
+}
