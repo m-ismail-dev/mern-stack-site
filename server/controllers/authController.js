@@ -30,9 +30,7 @@ function setAuthCookies(res, userId, remember) {
 
 export const register = async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Username and password are required' });
-    }
+    if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
 
     try {
         const user = await User.create({ username, password });
