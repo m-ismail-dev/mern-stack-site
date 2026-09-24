@@ -1,4 +1,4 @@
-# mern-auth-playground
+# MERN-stack-site
 
 MERN app for testing a REST API and JWT auth (access + refresh tokens in httpOnly cookies).
 
@@ -30,7 +30,7 @@ Base URL: `http://localhost:5000/api`
 
 `?` marks an optional field.
 
-## Auth
+## Authentication
 
 - Access token: 15 min, sent automatically as a cookie.
 - Refresh token: session cookie, or 30 days if `rememberMe` is true.
