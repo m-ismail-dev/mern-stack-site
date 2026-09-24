@@ -41,12 +41,12 @@ export const login = async (req, res) => {
         'access_token',
         accessToken,
         cookieBase
-    )
+    );
     res.cookie(
         'refresh_token',
         refreshToken,
         { ...cookieBase, maxAge: 30 * 24 * 60 * 60 * 1000 }
-    )
+    );
 
-    res.json({ username })
+    res.json({ username });
 }
