@@ -36,7 +36,7 @@ export const login = async (req, res) => {
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: process.env['JWT_REFRESH_EXPIRY' + rememberMe ? '_REMEMBER' : ''] }
     );
-    
+
     res.cookie(
         'access_token',
         accessToken,
@@ -49,4 +49,25 @@ export const login = async (req, res) => {
     );
 
     res.json({ username });
+}
+
+export const refresh = async (req, res) => {
+    const token = req.cookies.refresh_token;
+    if (!token) return res.status(401).json({ message: 'No refresh token' });
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        res.cookie(
+            'access_token',
+            jwt.sign(
+                payload,
+                process.env.JWT_ACCESS_SECRET,
+                { expiresIn: process.env.JWT_ACCESS_EXPIRY }
+            ),
+            cookieBase
+        );
+        res.json({ ok: true})
+    } catch {
+        res.status(401).json({ message: 'Token invalid or expired' })
+    }
 }
