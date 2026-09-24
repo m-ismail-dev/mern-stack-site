@@ -32,8 +32,8 @@ Base URL: `http://localhost:5000/api`
 
 ## Authentication
 
-- Access token: 15 min, sent automatically as a cookie.
-- Refresh token: session cookie, or 30 days if `rememberMe` is true.
+- Access token: 15 min, sent automatically as a cookie named `access_token`.
+- Refresh token: session cookie, or 30 days if `rememberMe` is true, named `refresh_token`.
 - On a `401`, the client calls `/auth/refresh` and retries the request once.
 
 Errors return `{ "message": "..." }` with status `4xx`.
