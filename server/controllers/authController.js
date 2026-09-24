@@ -33,8 +33,8 @@ export const login = async (req, res) => {
     );
     const refreshToken = jwt.sign(
         { sub: user.id },
-        process.env.JWT_ACCESS_SECRET,
-        { expiresIn: process.env['JWT_ACCESS_EXPIRY' + rememberMe ? '_REMEMBER' : ''] }
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: process.env['JWT_REFRESH_EXPIRY' + rememberMe ? '_REMEMBER' : ''] }
     );
     
     res.cookie(
