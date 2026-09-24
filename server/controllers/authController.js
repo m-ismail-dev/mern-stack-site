@@ -66,8 +66,15 @@ export const refresh = async (req, res) => {
             ),
             cookieBase
         );
-        res.json({ ok: true})
+        res.json({ ok: true })
     } catch {
         res.status(401).json({ message: 'Token invalid or expired' })
     }
+}
+
+
+export const logout = async (req, res) => {
+    res.clearCookie('access_token', cookieBase);
+    res.clearCookie('refresh_token', { ...cookieBase, path: 'api/auth' })
+    res.sendStatus(204);
 }

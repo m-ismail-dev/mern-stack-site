@@ -25,7 +25,7 @@ Base URL: `http://localhost:5000/api`
 | POST | `/auth/register` | No | `username`, `password` | `username` | Create account |
 | POST | `/auth/login` | No | `username`, `password`, `rememberMe`? | JWT cookies | Log in, sets access + refresh http only cookies |
 | POST | `/auth/refresh` | Yes | JWT cookies | `ok` boolean and JWT cookies | Issue a new access token |
-| POST | `/auth/logout` | Yes | none | none | Clear both cookies |
+| POST | `/auth/logout` | Yes | none | `204` status | Clear both cookies |
 | GET | `/auth/me` | Yes | none | username | Current user |
 
 `?` marks an optional field.
