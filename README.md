@@ -20,13 +20,13 @@ Requires Node 20+ and MongoDB. Env variables are listed in each `.env.example`.
 
 Base URL: `http://localhost:5000/api`
 
-| Method | Endpoint | Auth | Body | Description |
-|--------|----------|------|------|-------------|
-| POST | `/auth/register` | No | `username`, `password` | Create account |
-| POST | `/auth/login` | No | `username`, `password`, `rememberMe`? | Log in, sets access + refresh cookies |
-| POST | `/auth/refresh` | none | none | Issue a new access token |
-| POST | `/auth/logout` | Yes | none | Clear both cookies |
-| GET | `/auth/me` | Yes | none | Current user |
+| Method | Endpoint | Auth | Request | Response | Description |
+|--------|----------|------|---------|----------|-------------|
+| POST | `/auth/register` | No | `username`, `password` | `username` | Create account |
+| POST | `/auth/login` | No | `username`, `password`, `rememberMe`? | JWT cookies | Log in, sets access + refresh http only cookies |
+| POST | `/auth/refresh` | No | JWT cookies | `ok` boolean and JWT cookies | Issue a new access token |
+| POST | `/auth/logout` | No | none | `204` status | Clear both cookies |
+| GET | `/auth/me` | Yes | none | username | Current user |
 
 `?` marks an optional field.
 
