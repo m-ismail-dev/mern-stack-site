@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from './models/User.js';
+import User from '../models/User.js';
 
 
 const cookieBase = { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' }
