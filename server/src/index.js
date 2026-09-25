@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import apiRouter from '../routes/index.js'
 import connectDB from '../config/db.js';
 
-const app = experss();
+const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
