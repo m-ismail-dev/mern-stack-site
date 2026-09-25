@@ -17,28 +17,28 @@ function Login() {
         onSubmit={handleSubmit}
       >
         <p className="text-2xl font-medium text-center">
-          <span className="text-indigo-500">User</span> Login
+          <span className="text-emerald-500">User</span> Login
         </p>
 
         <div className="mt-4">
-          <label className="block">Email</label>
+          <label className="block text-emerald-600">Email</label>
           <input
             type="email"
-            placeholder="type here"
+            placeholder="email@example.com"
             required
-            className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500"
+            className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
         <div className="mt-4">
-          <label className="block">Password</label>
+          <label className="block text-emerald-600">Password</label>
           <input
             type="password"
-            placeholder="type here"
+            placeholder="******"
             required
-            className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500"
+            className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -46,14 +46,14 @@ function Login() {
 
         {/* <p className="mt-4">
           Create an account?
-          <a href="#" className="text-indigo-500">
+          <a href="#" className="text-emerald-500">
             Click here
           </a>
         </p> */}
 
         <button
           type="submit"
-          className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white w-full py-2 rounded-md mt-4 cursor-pointer"
+          className="bg-emerald-500 hover:bg-emerald-600 transition-all text-white w-full py-2 rounded-md mt-4 cursor-pointer"
         >
           Login
         </button>
