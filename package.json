@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
-    "dev": "concurrently -n server,client \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev": "concurrently -n server,client --kill-others \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client"
   },
