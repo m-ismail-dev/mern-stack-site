@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch --watch-preserve-output src/index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
