@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import bcryp from 'bcrypt'
+import { prisma } from '../src/db.js';
 
 const cookieBase = {
     httpOnly: true,
@@ -13,7 +14,9 @@ export const register = async (req, res) => {
     if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
 
     try {
-        const user = await User.create({ username, password });
+        const user = await prisma.user.create({
+            data: { username, password: bcryp.hash(password) }
+        });
         return res.status(201).json({ username: user.username });
     } catch (error) {
         if (error.code === 11000) return res.status(409).json({ message: 'Username already exists' });
@@ -27,7 +30,7 @@ export const login = async (req, res) => {
     if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
 
     try {
-        const user = await User.findOne({ username }).select('+password');
+        const user = prisma.user.findUnique({ where: { username } })
 
         if (!user || !(await user.matchPassword(password))) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -88,7 +91,7 @@ export const logout = async (req, res) => {
 };
 
 export const me = async (req, res) => {
-    const user = await User.findById(req.userId);
+    const user = prisma.user.findUnique({ where: { id: req.userId } });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json({ username: user.username });
