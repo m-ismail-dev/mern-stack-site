@@ -7,8 +7,9 @@ export function requireAuth(req, res, next) {
     try {
         req.userId = jwt.verify(token, process.env.JWT_ACCESS_SECRET).sub;
         next()
-    } catch {
-        res.status(401).json({ message: 'Token invalid or expired'})
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') return res.status(401).json({ message: 'Token invalid or expired' });
+        throw error
     }
 }
 

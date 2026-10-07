@@ -1,55 +1,69 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import bcryp from 'bcrypt'
+import { prisma } from '../src/db.js';
+import { useReducer } from 'react';
 
-
-const cookieBase = { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' }
+const cookieBase = {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/'
+};
 
 export const register = async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
 
-    try {
-        const user = await User.create({ username, password });
-        return res.status(201).json({ username: user.username });
-    } catch (error) {
-        if (error.code === 11000) return res.status(409).json({ message: 'Username already exists' });
-        else if (error.name === 'ValidationError') return res.status(400).json({ message: error.message });
-        else return res.status(500).json({ message: 'Internal server error' });
-    }
-}
+    const { email, password, firstName, lastName = null } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
+
+    const user = await prisma.user.create({
+        data: { email, password: await bcryp.hash(password, 10), firstName, lastName },
+        select: { id: true, email: true, firstName: true, lastName: true }
+    });
+
+    return res.status(201).json({ message: 'Registered successfully', user });
+};
 
 export const login = async (req, res) => {
-    const { username, password, rememberMe } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
+    const { email, password, rememberMe = false } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 
-    const user = User.findOne({ username }).select('+password')
-    if (user?.matchPassword(password)) res.status(401).json({ message: 'Invalid credentials' });
+    try {
+        const user = await prisma.user.findUnique({ where: { email } })
 
-    // set JWT cookies
-    const accessToken = jwt.sign(
-        { sub: user.id },
-        process.env.JWT_ACCESS_SECRET,
-        { expiresIn: process.env.JWT_ACCESS_EXPIRY }
-    );
-    const refreshToken = jwt.sign(
-        { sub: user.id },
-        process.env.JWT_REFRESH_SECRET,
-        { expiresIn: process.env['JWT_REFRESH_EXPIRY' + rememberMe ? '_REMEMBER' : ''] }
-    );
+        if (!user || !await bcryp.compare(password, user.password)) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
 
-    res.cookie(
-        'access_token',
-        accessToken,
-        cookieBase
-    );
-    res.cookie(
-        'refresh_token',
-        refreshToken,
-        { ...cookieBase, maxAge: 30 * 24 * 60 * 60 * 1000, path: '/api/auth' }
-    );
+        const accessToken = jwt.sign(
+            { sub: user.id },
+            process.env.JWT_ACCESS_SECRET,
+            { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' }
+        );
 
-    res.json({ username });
-}
+        const refreshExpiry = rememberMe
+            ? (process.env.JWT_REFRESH_EXPIRY_REMEMBER || process.env.JWT_REFRESH_EXPIRY || '30d')
+            : (process.env.JWT_REFRESH_EXPIRY || '7d');
+
+        const refreshToken = jwt.sign(
+            { sub: user.id },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: refreshExpiry }
+        );
+
+        res.cookie('access_token', accessToken, cookieBase);
+        res.cookie('refresh_token', refreshToken, {
+            ...cookieBase,
+            maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000,
+            path: '/api/auth'
+        });
+
+        delete user.password
+        return res.json({ message: "Logged in successfully", user });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 export const refresh = async (req, res) => {
     const token = req.cookies.refresh_token;
@@ -57,31 +71,32 @@ export const refresh = async (req, res) => {
 
     try {
         const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        res.cookie(
-            'access_token',
-            jwt.sign(
-                payload,
-                process.env.JWT_ACCESS_SECRET,
-                { expiresIn: process.env.JWT_ACCESS_EXPIRY }
-            ),
-            cookieBase
+        const accessToken = jwt.sign(
+            { sub: payload.sub },
+            process.env.JWT_ACCESS_SECRET,
+            { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' }
         );
-        res.json({ ok: true })
-    } catch {
-        res.status(401).json({ message: 'Token invalid or expired' })
-    }
-}
 
+        res.cookie('access_token', accessToken, cookieBase);
+        return res.json({ message: 'Refreshed successfuly' });
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') return res.status(401).json({ message: 'Token invalid or expired' });
+        throw error
+    }
+};
 
 export const logout = async (req, res) => {
     res.clearCookie('access_token', cookieBase);
-    res.clearCookie('refresh_token', { ...cookieBase, path: 'api/auth' })
+    res.clearCookie('refresh_token', { ...cookieBase, path: '/api/auth' });
     res.sendStatus(204);
-}
+};
 
 export const me = async (req, res) => {
-    const user = User.findById(req.userId);
+    const user = prisma.user.findUnique({
+        where: { id: req.userId },
+        select: { id: true, email: true, firstName: true, lastName: true }
+    });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    res.json({ username: user.username });
-}
+    res.json({ user });
+};
