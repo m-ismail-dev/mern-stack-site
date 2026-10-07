@@ -1,24 +1,31 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 export function requireAuth(req, res, next) {
-  const token = req.cookies.access_token;
-  if (!token) return res.status(401).json({ message: "Not logged in" });
+  const token = req.cookies?.access_token;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Not logged in' });
+  }
 
   try {
-    req.userId = jwt.verify(token, process.env.JWT_ACCESS_SECRET).sub;
-    next();
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    req.userId = payload.sub;
+    return next();
   } catch (error) {
-    if (error.name === "JsonWebTokenError")
-      return res.status(401).json({ message: "Token invalid or expired" });
-    throw error;
+    if (error?.name === 'JsonWebTokenError' || error?.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token invalid or expired' });
+    }
+
+    console.error('Auth middleware error:', error);
+    return res.status(500).json({ message: 'Authentication failed' });
   }
 }
 
 export function optionalAuth(req, res, next) {
-  // if there is a token, it must be valid
-  if (req.cookies.access_token) return requireAuth(req, res, next);
+  if (req.cookies?.access_token) {
+    return requireAuth(req, res, next);
+  }
 
-  // otherwise continue as anonymous user
   req.userId = null;
-  next();
+  return next();
 }
