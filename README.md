@@ -12,14 +12,16 @@ npx prisma generate --prefix server
 npm run dev
 ```
 
+Requires Node 20+. Env variables are listed in each `.env.example`, DATABASE_URL variable must be set.
+
+## Default host
 - Server: http://localhost:5000
 - Client: http://localhost:5173
 
-Requires Node 20+ and MongoDB. Env variables are listed in each `.env.example`.
 
 ## API
 
-Base URL: `http://localhost:5000/api`
+Base URL: `http://localhost:3000/api`
 
 | Method | Endpoint         | Auth | Request                                       | Response                        | Description                                     |
 | ------ | ---------------- | ---- | --------------------------------------------- | ------------------------------- | ----------------------------------------------- |
