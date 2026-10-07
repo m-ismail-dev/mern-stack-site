@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcryp from 'bcrypt'
 import { prisma } from '../src/db.js';
+import { useReducer } from 'react';
 
 const cookieBase = {
     httpOnly: true,
@@ -10,34 +11,31 @@ const cookieBase = {
 };
 
 export const register = async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
 
-    try {
-        const user = await prisma.user.create({
-            data: { username, password: bcryp.hash(password) }
-        });
-        return res.status(201).json({ username: user.username });
-    } catch (error) {
-        if (error.code === 11000) return res.status(409).json({ message: 'Username already exists' });
-        else if (error.name === 'ValidationError') return res.status(400).json({ message: error.message });
-        else return res.status(500).json({ message: 'Internal server error' });
-    }
+    const { email, password, firstName, lastName = null } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
+
+    const user = await prisma.user.create({
+        data: { email, password: await bcryp.hash(password, 10), firstName, lastName },
+        select: { id: true, email: true, firstName: true, lastName: true }
+    });
+
+    return res.status(201).json({ message: 'Registered successfully', user });
 };
 
 export const login = async (req, res) => {
-    const { username, password, rememberMe } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
+    const { email, password, rememberMe = false } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 
     try {
-        const user = prisma.user.findUnique({ where: { username } })
+        const user = await prisma.user.findUnique({ where: { email } })
 
-        if (!user || !(await user.matchPassword(password))) {
+        if (!user || !await bcryp.compare(password, user.password)) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const accessToken = jwt.sign(
-            { sub: user._id.toString() },
+            { sub: user.id },
             process.env.JWT_ACCESS_SECRET,
             { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' }
         );
@@ -47,7 +45,7 @@ export const login = async (req, res) => {
             : (process.env.JWT_REFRESH_EXPIRY || '7d');
 
         const refreshToken = jwt.sign(
-            { sub: user._id.toString() },
+            { sub: user.id },
             process.env.JWT_REFRESH_SECRET,
             { expiresIn: refreshExpiry }
         );
@@ -59,8 +57,10 @@ export const login = async (req, res) => {
             path: '/api/auth'
         });
 
-        return res.json({ username: user.username, rememberMe: !!rememberMe });
+        delete user.password
+        return res.json({ message: "Logged in successfully", user });
     } catch (error) {
+        console.error(error)
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
@@ -78,9 +78,10 @@ export const refresh = async (req, res) => {
         );
 
         res.cookie('access_token', accessToken, cookieBase);
-        return res.json({ ok: true });
-    } catch {
-        return res.status(401).json({ message: 'Token invalid or expired' });
+        return res.json({ message: 'Refreshed successfuly' });
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') return res.status(401).json({ message: 'Token invalid or expired' });
+        throw error
     }
 };
 
@@ -91,8 +92,11 @@ export const logout = async (req, res) => {
 };
 
 export const me = async (req, res) => {
-    const user = prisma.user.findUnique({ where: { id: req.userId } });
+    const user = prisma.user.findUnique({
+        where: { id: req.userId },
+        select: { id: true, email: true, firstName: true, lastName: true }
+    });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    res.json({ username: user.username });
+    res.json({ user });
 };
