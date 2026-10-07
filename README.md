@@ -8,7 +8,7 @@ MERN app for testing a REST API and JWT auth (access + refresh tokens in httpOnl
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 npm run install:all
-npx prisma generate
+npx prisma generate --prefix server
 npm run dev
 ```
 
@@ -21,13 +21,13 @@ Requires Node 20+ and MongoDB. Env variables are listed in each `.env.example`.
 
 Base URL: `http://localhost:5000/api`
 
-| Method | Endpoint | Auth | Request | Response | Description |
-|--------|----------|------|---------|----------|-------------|
-| POST | `/auth/register` | No | `email`, `password`, `firstName`, `lastName?` | `message`, `user?` | Create account |
-| POST | `/auth/login` | No | `email`, `password`, `rememberMe?` | `message`, `user?`, JWT cookies | Log in, sets access + refresh http only cookies |
-| POST | `/auth/refresh` | No | JWT cookies | `message`, JWT cookies | Issue a new access token |
-| POST | `/auth/logout` | No | none | `204` status | Clear both cookies |
-| GET | `/auth/me` | Yes | none | `user` | Current user |
+| Method | Endpoint         | Auth | Request                                       | Response                        | Description                                     |
+| ------ | ---------------- | ---- | --------------------------------------------- | ------------------------------- | ----------------------------------------------- |
+| POST   | `/auth/register` | No   | `email`, `password`, `firstName`, `lastName?` | `message`, `user?`              | Create account                                  |
+| POST   | `/auth/login`    | No   | `email`, `password`, `rememberMe?`            | `message`, `user?`, JWT cookies | Log in, sets access + refresh http only cookies |
+| POST   | `/auth/refresh`  | No   | JWT cookies                                   | `message`, JWT cookies          | Issue a new access token                        |
+| POST   | `/auth/logout`   | No   | none                                          | `204` status                    | Clear both cookies                              |
+| GET    | `/auth/me`       | Yes  | none                                          | `user`                          | Current user                                    |
 
 `?` marks an optional field.
 
