@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api/api";
+import { useUser } from "../context/userContext";
 
 function Login() {
   const [email, setEmail] = useState("husam@gmail.com");
   const [password, setPassword] = useState("1230");
+
+  const { setUser } = useUser();
 
   const navigate = useNavigate();
 
@@ -15,9 +18,10 @@ function Login() {
 
     const user = await login(email, password);
 
-    console.log(user);
-
-    if (user.message === "Logged in successfully") navigate("/account");
+    if (user.message === "Logged in successfully") {
+      setUser(user.user);
+      navigate("/account");
+    }
   }
 
   return (

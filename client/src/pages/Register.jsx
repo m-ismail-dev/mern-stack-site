@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/api";
+import { useUser } from "../context/userContext";
 
 function Register() {
   const [firtsName, setFirstName] = useState("husam");
   const [lastName, setLastName] = useState("mustafa");
   const [email, setEmail] = useState("husam@gmail.com");
   const [password, setPassword] = useState("1230");
+
+  const { setUser } = useUser();
 
   const navigate = useNavigate();
 
@@ -17,9 +20,10 @@ function Register() {
 
     const user = await register(firtsName, lastName, email, password);
 
-    console.log(user);
-
-    if (user.message === "Registered successfully") navigate("/account");
+    if (user.message === "Registered successfully") {
+      setUser(user.user);
+      navigate("/account");
+    }
   }
 
   return (
