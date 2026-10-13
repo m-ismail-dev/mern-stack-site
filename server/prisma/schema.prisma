@@ -12,12 +12,24 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  email String @unique
-  firstName String
-  lastName String?
-  password String
 
-  @@index([email])
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  phoneNumber  String  @unique @map("phone_number")
+  passwordHash String  @map("password_hash")
+  role         Role    @default(CUSTOMER)
+  avatarUrl    String? @map("avatar_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
 }

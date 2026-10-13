@@ -56,7 +56,7 @@ export const login = async (req, res) => {
         );
 
         const refreshExpiry = rememberMe
-            ? (process.env.JWT_REFRESH_EXPIRY_REMEMBER || process.env.JWT_REFRESH_EXPIRY || '30d')
+            ? (process.env.JWT_REFRESH_EXPIRY_REMEMBER || '30d')
             : (process.env.JWT_REFRESH_EXPIRY || '7d');
 
         const refreshToken = jwt.sign(
@@ -69,7 +69,7 @@ export const login = async (req, res) => {
         res.cookie('refresh_token', refreshToken, {
             ...cookieBase,
             maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000,
-            path: '/api/auth'
+            path: '/api/auth/refresh'
         });
 
         const safeUser = { ...user };
@@ -111,7 +111,7 @@ export const refresh = async (req, res) => {
 
 export const logout = async (req, res) => {
     res.clearCookie('access_token', cookieBase);
-    res.clearCookie('refresh_token', { ...cookieBase, path: '/api/auth' });
+    res.clearCookie('refresh_token', { ...cookieBase, path: '/api/auth/refresh' });
     res.sendStatus(204);
 };
 
