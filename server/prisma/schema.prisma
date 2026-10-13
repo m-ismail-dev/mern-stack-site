@@ -11,6 +11,8 @@ enum Role {
   CUSTOMER
   PROVIDER
   ADMIN
+
+  @@map("role")
 }
 
 enum BookingStatus {
@@ -21,12 +23,16 @@ enum BookingStatus {
   COMPLETED
   REJECTED
   CANCELED
+
+  @@map("booking_status")
 }
 
 enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   CANCELED
+
+  @@map("subscription_status")
 }
 
 enum SubscriptionPlan {
@@ -34,6 +40,8 @@ enum SubscriptionPlan {
   STARTER
   PRO
   BUSINESS
+
+  @@map("subscription_plan")
 }
 
 model User {
