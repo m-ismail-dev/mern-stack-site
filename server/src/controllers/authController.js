@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcryp from 'bcrypt';
-import { prisma } from '../src/db.js';
+import prisma from '../lib/prisma.js';
 
 const cookieBase = {
     httpOnly: true,

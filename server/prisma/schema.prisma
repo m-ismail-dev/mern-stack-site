@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -12,24 +7,168 @@ datasource db {
   provider = "postgresql"
 }
 
-
 enum Role {
   CUSTOMER
   PROVIDER
   ADMIN
 }
 
+enum BookingStatus {
+  PENDING
+  QOUTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  CANCELED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+}
+
 model User {
   id           Int     @id @default(autoincrement())
   name         String
   email        String  @unique
-  phoneNumber  String  @unique @map("phone_number")
+  phone        String? @unique @map("phone_number")
   passwordHash String  @map("password_hash")
   role         Role    @default(CUSTOMER)
-  avatarUrl    String? @map("avatar_url")
+
+  customerProfile CustomerProfile?
+  providerProfile ProviderProfile?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model CustomerProfile {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  profilePicture String?  @map("profile_picture")
+  location       String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("customer_profiles")
+}
+
+model ProviderProfile {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  profilePicture String?  @map("profile_picture")
+  description    String?
+  location       String?
+  ratingSum      Int?     @default(0) @map("rating_sum")
+  ratingCount    Int?     @default(0) @map("rating_count")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  services     ProviderService[]
+  bookings     Booking[]
+  reviews      Review[]
+  subscription Subscription?
+
+  @@index([location])
+  @@map("provider_profiles")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  services Service[]
+}
+
+model Service {
+  id         Int               @id @default(autoincrement())
+  name       String
+  categoryId Int               @map("category_id")
+  category   Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  providers  ProviderService[]
+  bookings   Booking[]
+
+  @@index([categoryId])
+  @@map("services")
+}
+
+model ProviderService {
+  providerId Int             @map("provider_id")
+  provider   ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  serviceId  Int             @map("service_id")
+  service    Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  basePrice  Decimal?        @map("base_price") @db.Decimal(10, 2)
+
+  @@id([providerId, serviceId])
+  @@map("provider_service")
+}
+
+model Booking {
+  id         Int             @id @default(autoincrement())
+  providerId Int             @map("provider_id")
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  customerId Int             @map("customer_id")
+  customer   CustomerProfile @relation(fields: [customerId], references: [id])
+  serviceId  Int             @map("service_id")
+  service    Service         @relation(fields: [serviceId], references: [id])
+
+  description String
+  attachments String[]
+  location    String
+  qoutedPrice Decimal       @map("qouted_price") @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  review      Review?
+
+  scheduledAt DateTime @map("scheduled_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([customerId])
+  @@index([providerId])
+  @@map("bookings")
+}
+
+model Review {
+  id         Int              @id @default(autoincrement())
+  bookingId  Int?             @unique @map("booking_id")
+  booking    Booking?         @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customerId Int?             @unique @map("customer_id")
+  customer   CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  providerId Int?             @unique @map("provider_id")
+  provider   ProviderProfile? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([providerId])
+  @@map("reviews")
+}
+
+model Subscription {
+  id         Int                @id @default(autoincrement())
+  providerId Int                @unique
+  plan       SubscriptionPlan   @default(FREE)
+  status     SubscriptionStatus @default(ACTIVE)
+  startDate  DateTime           @default(now()) @map("start_date")
+  endDate    DateTime?          @map("end_date")
+  provider   ProviderProfile    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }
