@@ -102,6 +102,8 @@ model Category {
   slug     String    @unique
   name     String
   services Service[]
+
+  @@map("categories")
 }
 
 model Service {
