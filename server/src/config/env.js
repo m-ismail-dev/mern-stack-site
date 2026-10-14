@@ -12,11 +12,14 @@ const parsed = z.object({
     JWT_REFRESH_EXPIRY_REMEMBER: z.string().default("30d"),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     PORT: z.coerce.number().default(3000),
-    CLIENT_URL: z.string().min(1).default("http://localhost:5173")
+    CLIENT_URL: z.string().min(1).default("http://localhost:5173"),
+    ADMIN_EMAIL: z.string().min(1).default("adminemail@example.com"),
+    ADMIN_PASSWORD: z.string().min(1).default("example admin password")
 }).safeParse(process.env)
 
 if (!parsed.success) {
-    console.error("Invalid environment:", parsed.error.flatten().fieldErrors)
+    console.error("Invalid environment:", parsed.error.flatten().fieldErrors);
+    process.exit(1);
 }
 
 export default parsed.data;
