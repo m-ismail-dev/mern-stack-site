@@ -1,21 +1,28 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `avatar_url` on the `users` table. All the data in the column will be lost.
-
-*/
 -- CreateEnum
-CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'QOUTED', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'CANCELED');
+CREATE TYPE "role" AS ENUM ('CUSTOMER', 'PROVIDER', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'EXPIRED', 'CANCELED');
+CREATE TYPE "booking_status" AS ENUM ('PENDING', 'QOUTED', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'CANCELED');
 
 -- CreateEnum
-CREATE TYPE "SubscriptionPlan" AS ENUM ('FREE', 'STARTER', 'PRO', 'BUSINESS');
+CREATE TYPE "subscription_status" AS ENUM ('ACTIVE', 'EXPIRED', 'CANCELED');
 
--- AlterTable
-ALTER TABLE "users" DROP COLUMN "avatar_url",
-ALTER COLUMN "phone_number" DROP NOT NULL;
+-- CreateEnum
+CREATE TYPE "subscription_plan" AS ENUM ('FREE', 'STARTER', 'PRO', 'BUSINESS');
+
+-- CreateTable
+CREATE TABLE "users" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone_number" TEXT,
+    "password_hash" TEXT NOT NULL,
+    "role" "role" NOT NULL DEFAULT 'CUSTOMER',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "customer_profiles" (
@@ -43,12 +50,12 @@ CREATE TABLE "provider_profiles" (
 );
 
 -- CreateTable
-CREATE TABLE "Category" (
+CREATE TABLE "categories" (
     "id" SERIAL NOT NULL,
     "slug" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -79,7 +86,7 @@ CREATE TABLE "bookings" (
     "attachments" TEXT[],
     "location" TEXT NOT NULL,
     "qouted_price" DECIMAL(10,2) NOT NULL,
-    "status" "BookingStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "booking_status" NOT NULL DEFAULT 'PENDING',
     "scheduled_at" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -104,13 +111,19 @@ CREATE TABLE "reviews" (
 CREATE TABLE "subscriptions" (
     "id" SERIAL NOT NULL,
     "providerId" INTEGER NOT NULL,
-    "plan" "SubscriptionPlan" NOT NULL DEFAULT 'FREE',
-    "status" "SubscriptionStatus" NOT NULL DEFAULT 'ACTIVE',
+    "plan" "subscription_plan" NOT NULL DEFAULT 'FREE',
+    "status" "subscription_status" NOT NULL DEFAULT 'ACTIVE',
     "start_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "end_date" TIMESTAMP(3),
 
     CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_phone_number_key" ON "users"("phone_number");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customer_profiles_user_id_key" ON "customer_profiles"("user_id");
@@ -122,7 +135,7 @@ CREATE UNIQUE INDEX "provider_profiles_user_id_key" ON "provider_profiles"("user
 CREATE INDEX "provider_profiles_location_idx" ON "provider_profiles"("location");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Category_slug_key" ON "Category"("slug");
+CREATE UNIQUE INDEX "categories_slug_key" ON "categories"("slug");
 
 -- CreateIndex
 CREATE INDEX "services_category_id_idx" ON "services"("category_id");
@@ -155,7 +168,7 @@ ALTER TABLE "customer_profiles" ADD CONSTRAINT "customer_profiles_user_id_fkey" 
 ALTER TABLE "provider_profiles" ADD CONSTRAINT "provider_profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "services" ADD CONSTRAINT "services_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "services" ADD CONSTRAINT "services_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "provider_service" ADD CONSTRAINT "provider_service_provider_id_fkey" FOREIGN KEY ("provider_id") REFERENCES "provider_profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
