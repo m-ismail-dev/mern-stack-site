@@ -115,6 +115,7 @@ model Service {
   bookings   Booking[]
 
   @@index([categoryId])
+  @@unique([categoryId, name])
   @@map("services")
 }
 
