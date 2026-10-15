@@ -27,7 +27,7 @@ function Register() {
   }
 
   return (
-    <main className="bg-emerald-50 flex justify-center items-center h-dvh">
+    <main className="bg-emerald-50 flex justify-center items-center h-dvh max-w-7xl mx-auto">
       <form
         className="bg-white rounded-lg shadow-xl text-sm text-gray-500 border border-gray-200 p-8 py-12 w-80 sm:w-88"
         onSubmit={handleSubmit}
