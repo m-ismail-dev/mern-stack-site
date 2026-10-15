@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch --watch-preserve-output src/server.js"
+    "dev": "node --watch-path=./src --watch-preserve-output src/server.js"
   },
     "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

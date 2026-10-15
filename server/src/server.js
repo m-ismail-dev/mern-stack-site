@@ -1,11 +1,15 @@
 import app from './app.js';
 import env from './config/env.js';
 
-process.on('SIGINT', async () => {
-  await prisma.$disconnect();
-  process.exit(0);
+const server = app.listen(env.PORT, () => {
+  console.log(`\nServer running on port: \x1b[32;1m${process.env.PORT || 3000}\x1b[0m`);
 });
 
-app.listen(env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT || 3000}`);
-});
+const shutdown = async () => {
+  server.close();
+  await prisma.$disconnect();
+  process.exit(0);
+};
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+process.on('unhandledRejection', (err) => console.error('Unhandled rejection:', err));
