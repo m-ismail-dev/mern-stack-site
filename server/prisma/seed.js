@@ -18,17 +18,20 @@ async function main() {
 
     for (const category of categories) {
         const { services, ...others } = category
-        const { id: categoryId } = prisma.category.upsert({
-            where: { slug: category.slug },
+
+        const { id: categoryId } = await prisma.category.upsert({
+            where: { slug: category.slug},
             update: {},
             create: { ...others }
         })
-        for (const service of services) {
-            prisma.service.upsert({
-                where: { name: service, categoryId },
-                update: {},
-                create: { name: service, categoryId }
-            })
+
+        for (const name of services) {
+            try {
+                await prisma.service.create({ data: { name, categoryId}})
+            } catch (error) {
+                if (error?.code === 'P2002') continue;
+                throw error;
+            }
         }
     }
 }
