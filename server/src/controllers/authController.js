@@ -1,16 +1,17 @@
 import jwt from 'jsonwebtoken';
 import bcryp from 'bcrypt';
 import prisma from '../lib/prisma.js';
+import env from '../config/env.js';
 
 const cookieBase = {
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     path: '/'
 };
 
 export const register = async (req, res) => {
-    const { email, password, firstName, lastName = null } = req.body;
+    const { email, password, name, role } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ message: 'Email and password are required' });
@@ -20,7 +21,7 @@ export const register = async (req, res) => {
 
     try {
         user = await prisma.user.create({
-            data: { email, password: await bcryp.hash(password, 10), firstName, lastName },
+            data: { email, password: await bcryp.hash(password, 10), name, role },
             select: { id: true, email: true, firstName: true, lastName: true }
         });
     } catch (error) {
@@ -51,17 +52,17 @@ export const login = async (req, res) => {
 
         const accessToken = jwt.sign(
             { sub: user.id },
-            process.env.JWT_ACCESS_SECRET,
-            { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' }
+            env.JWT_ACCESS_SECRET,
+            { expiresIn: env.JWT_ACCESS_EXPIRY }
         );
 
         const refreshExpiry = rememberMe
-            ? (process.env.JWT_REFRESH_EXPIRY_REMEMBER || '30d')
-            : (process.env.JWT_REFRESH_EXPIRY || '7d');
+            ? (env.JWT_REFRESH_EXPIRY_REMEMBER)
+            : (env.JWT_REFRESH_EXPIRY);
 
         const refreshToken = jwt.sign(
             { sub: user.id },
-            process.env.JWT_REFRESH_SECRET,
+            env.JWT_REFRESH_SECRET,
             { expiresIn: refreshExpiry }
         );
 
@@ -90,11 +91,11 @@ export const refresh = async (req, res) => {
     }
 
     try {
-        const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        const payload = jwt.verify(token, env.JWT_REFRESH_SECRET);
         const accessToken = jwt.sign(
             { sub: payload.sub },
-            process.env.JWT_ACCESS_SECRET,
-            { expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m' }
+            env.JWT_ACCESS_SECRET,
+            { expiresIn: env.JWT_ACCESS_EXPIRY || '15m' }
         );
 
         res.cookie('access_token', accessToken, cookieBase);

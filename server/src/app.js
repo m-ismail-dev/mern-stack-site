@@ -20,7 +20,7 @@ app.use((req, res) => {
 });
 
 app.use((error, req, res, next) => {
-  console.error('Unhandled server error:', error);
+  console.error('\x1b[31mUnhandled server error\x1b[0m:', error);
 
   if (error?.statusCode) {
     return res.status(error.statusCode).json({ message: error.message || 'Request failed' });
