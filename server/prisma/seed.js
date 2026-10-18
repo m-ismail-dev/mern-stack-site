@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import env from '../src/config/env.js';
 import bcrypt from 'bcrypt';
 import prisma from '../src/lib/prisma.js';
 
@@ -9,11 +9,11 @@ const categories = [
 ];
 
 async function main() {
-    const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10)
+    const passwordHash = await bcrypt.hash(env.ADMIN_PASSWORD, 10)
     await prisma.user.upsert({
-        where: { email: process.env.ADMIN_EMAIL },
+        where: { email: env.ADMIN_EMAIL },
         update: {},
-        create: { name: 'Admin', email: process.env.ADMIN_EMAIL, passwordHash, role: 'ADMIN' }
+        create: { name: 'Admin', email: env.ADMIN_EMAIL, passwordHash, role: 'ADMIN' }
     })
 
     for (const category of categories) {

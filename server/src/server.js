@@ -2,7 +2,7 @@ import app from './app.js';
 import env from './config/env.js';
 
 const server = app.listen(env.PORT, () => {
-  console.log(`\nServer \x1b[32mrunning\x1b[0m on port: \x1b[32;1m${process.env.PORT || 3000}\x1b[0m`);
+  console.log(`\nServer \x1b[32mrunning\x1b[0m on port: \x1b[32;1m${env.PORT}\x1b[0m`);
 });
 
 const shutdown = async () => {

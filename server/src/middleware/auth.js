@@ -8,7 +8,7 @@ export function requireAuth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const payload = jwt.verify(token, penv.JWT_ACCESS_SECRET);
     req.userId = payload.sub;
     return next();
   } catch (error) {
