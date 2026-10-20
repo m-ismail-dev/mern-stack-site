@@ -4,10 +4,11 @@ import { register } from "../api/api";
 import { useUser } from "../context/userContext";
 
 function Register() {
-  const [firtsName, setFirstName] = useState("husam");
-  const [lastName, setLastName] = useState("mustafa");
-  const [email, setEmail] = useState("husam@gmail.com");
-  const [password, setPassword] = useState("1230");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const { setUser } = useUser();
 
@@ -18,7 +19,19 @@ function Register() {
 
     console.log(email, password);
 
-    const user = await register(firtsName, lastName, email, password);
+    let errors = [];
+
+    if (firstName.length < 3)
+      errors.push("First name must be at least 3 and not exceed 15 characters");
+
+    if (lastName.length < 3)
+      errors.push("Last name must be at least 3 and not exceed 15 characters");
+
+    if (password !== passwordConfirm) errors.push("passwords do not match");
+
+    if (errors.length > 0) return alert(errors.join("\n"));
+
+    const user = await register(firstName, lastName, email, password);
 
     if (user.message === "Registered successfully") {
       setUser(user.user);
@@ -42,8 +55,10 @@ function Register() {
             type="text"
             placeholder="Enter your name"
             required
+            minLength={3}
+            maxLength="15"
             className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
-            value={firtsName}
+            value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
           />
         </div>
@@ -53,6 +68,8 @@ function Register() {
             type="text"
             placeholder="Enter your family name"
             required
+            minLength="3"
+            maxLength="15"
             className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
@@ -76,9 +93,23 @@ function Register() {
             type="password"
             placeholder="******"
             required
+            minLength="8"
             className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-emerald-600">Password Confirm</label>
+          <input
+            type="password"
+            placeholder="******"
+            required
+            minLength="8"
+            className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
           />
         </div>
 
