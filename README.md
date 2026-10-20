@@ -16,7 +16,7 @@ Requires Node 20+. Env variables are listed in each `.env.example`, except `DATA
 
 ## API
 
-Base URL: `http://localhost:3000/api`
+Base URL: `http://localhost:{env.port}/api`
 
 | Method | Endpoint         | Auth | Request                                       | Response                        | Description                                     |
 | ------ | ---------------- | ---- | --------------------------------------------- | ------------------------------- | ----------------------------------------------- |
