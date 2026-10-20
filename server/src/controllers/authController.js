@@ -11,7 +11,7 @@ const cookieBase = {
 };
 
 export const register = async (req, res) => {
-    const { email, password, name, role } = req.body;
+    const { email, password, firstName, lastName, role, phone } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ message: 'Email and password are required' });
@@ -21,8 +21,8 @@ export const register = async (req, res) => {
 
     try {
         user = await prisma.user.create({
-            data: { email, password: await bcryp.hash(password, 10), name, role },
-            select: { id: true, email: true, firstName: true, lastName: true }
+            data: { email, passwordHash: await bcryp.hash(password, 10), firstName, lastName, role, phone },
+            omit: { passwordHash: true }
         });
     } catch (error) {
         if (error?.code === 'P2002') {
@@ -73,8 +73,7 @@ export const login = async (req, res) => {
             path: '/api/auth/refresh'
         });
 
-        const safeUser = { ...user };
-        delete safeUser.password;
+        const { passwordHash, ...safeUser } = user;
 
         return res.json({ message: 'Logged in successfully', user: safeUser });
     } catch (error) {

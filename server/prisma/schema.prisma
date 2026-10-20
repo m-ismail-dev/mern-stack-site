@@ -46,7 +46,8 @@ enum SubscriptionPlan {
 
 model User {
   id           Int     @id @default(autoincrement())
-  name         String
+  firstName    String  @map("first_name")
+  lastName     String? @map("last_name")
   email        String  @unique
   phone        String? @unique @map("phone_number")
   passwordHash String  @map("password_hash")
@@ -114,8 +115,8 @@ model Service {
   providers  ProviderService[]
   bookings   Booking[]
 
-  @@index([categoryId])
   @@unique([categoryId, name])
+  @@index([categoryId])
   @@map("services")
 }
 
