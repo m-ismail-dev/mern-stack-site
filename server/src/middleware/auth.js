@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import env from '../config/env.js'
 
 export function requireAuth(req, res, next) {
   const token = req.cookies?.access_token;
@@ -8,7 +9,7 @@ export function requireAuth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, penv.JWT_ACCESS_SECRET);
+    const payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
     req.userId = payload.sub;
     return next();
   } catch (error) {
