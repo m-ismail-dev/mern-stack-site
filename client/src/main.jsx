@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import Account from "./pages/Account.jsx";
 import Register from "./pages/Register.jsx";
 import { UserProvider } from "./context/userContext.jsx";
+import { Toaster } from "react-hot-toast";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -22,5 +23,6 @@ createRoot(document.getElementById("root")).render(
         </Routes>
       </BrowserRouter>
     </UserProvider>
+    <Toaster />
   </StrictMode>,
 );

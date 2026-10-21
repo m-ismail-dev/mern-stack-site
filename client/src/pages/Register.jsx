@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/api";
 import { useUser } from "../context/userContext";
+import toast from "react-hot-toast";
 
 function Register() {
   const [firstName, setFirstName] = useState("");
@@ -29,7 +30,7 @@ function Register() {
 
     if (password !== passwordConfirm) errors.push("passwords do not match");
 
-    if (errors.length > 0) return alert(errors.join("\n"));
+    if (errors.length > 0) return toast.error(errors.join("\n"));
 
     const user = await register(firstName, lastName, email, password);
 

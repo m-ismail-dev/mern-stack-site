@@ -4,8 +4,8 @@ import { login } from "../api/api";
 import { useUser } from "../context/userContext";
 
 function Login() {
-  const [email, setEmail] = useState("husam@gmail.com");
-  const [password, setPassword] = useState("1230");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { setUser } = useUser();
 
@@ -52,6 +52,7 @@ function Login() {
             type="password"
             placeholder="******"
             required
+            minLength="8"
             className="border border-gray-200 rounded w-full p-2 mt-1 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
