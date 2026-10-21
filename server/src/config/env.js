@@ -1,7 +1,7 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import { z } from 'zod';
 
-const parsed = z.object({
+const result = z.object({
     DATABASE_URL: z.string().min(1),
 
     // example secrets by default
@@ -14,12 +14,13 @@ const parsed = z.object({
     PORT: z.coerce.number().default(3000),
     CLIENT_URL: z.string().min(1).default("http://localhost:5173"),
     ADMIN_EMAIL: z.string().min(1).default("adminemail@example.com"),
-    ADMIN_PASSWORD: z.string().min(1).default("example admin password")
+    ADMIN_PASSWORD: z.string().min(1).default("example admin password"),
+    LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug', 'silly']).default('info')
 }).safeParse(process.env)
 
-if (!parsed.success) {
-    console.error("Invalid environment:", parsed.error.flatten().fieldErrors);
+if (!result.success) {
+    console.error("Invalid environment:", result.error.flatten().fieldErrors);
     process.exit(1);
 }
 
-export default parsed.data;
+export default result.data;
