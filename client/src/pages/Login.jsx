@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api/api";
 import { useUser } from "../context/userContext";
+import toast from "react-hot-toast";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -14,9 +15,11 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    console.log(email, password);
-
     const user = await login(email, password);
+
+    if (user.message === "Invalid credentials") {
+      toast.error(user.message);
+    }
 
     if (user.message === "Logged in successfully") {
       setUser(user.user);

@@ -18,8 +18,6 @@ function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    console.log(email, password);
-
     let errors = [];
 
     if (firstName.length < 3)
@@ -33,6 +31,10 @@ function Register() {
     if (errors.length > 0) return toast.error(errors.join("\n"));
 
     const user = await register(firstName, lastName, email, password);
+
+    if (user.message === "Already exists") {
+      toast.error(user.message);
+    }
 
     if (user.message === "Registered successfully") {
       setUser(user.user);

@@ -44,3 +44,14 @@ export async function getMe() {
 
   return user;
 }
+
+export async function logout() {
+  const response = await fetch(`${BASE_URL}/auth/logout`, {
+    method: "POST",
+    // credentials: "include",
+  });
+
+  const user = response.json();
+
+  return user;
+}
