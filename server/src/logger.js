@@ -18,7 +18,7 @@ const consoleFormat = combine(
 const fileFormat = combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), errors({ stack: true }), json());
 
 export default winston.createLogger({
-  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: isProd ? 'info' : 'debug',
   format: fileFormat,
   transports: [
     new winston.transports.File({ filename: 'log/debug.log' }),
