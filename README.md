@@ -5,11 +5,21 @@ MERN app for testing a REST API and JWT auth (access + refresh tokens in httpOnl
 ## Setup
 
 ```bash
+# Copy example environment variables (you should add DATABASE_URL in server/.env)
 cp server/.env.example server/.env
 cp client/.env.example client/.env
+
+# install all and generate databae client
 npm run install:all
-npx prisma generate --prefix server
+npm run db:generate
+
+# Run server and client
 npm run dev
+
+# Or let the server serve the client build as same origin
+#npm run client:build
+#npm run server:dev
+# Then access both client and server in http://localhost:3000 (or as in .env)
 ```
 
 Requires Node 20+. Env variables are listed in each `.env.example`, except `DATABASE_URL` variable, it is required and has no default.

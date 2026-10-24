@@ -6,7 +6,8 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch-path=./src --watch-preserve-output src/server.js"
+    "dev": "node --watch-path=./src --watch-preserve-output src/server.js",
+    "db:generate": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
