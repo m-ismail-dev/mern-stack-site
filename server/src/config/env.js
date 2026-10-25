@@ -22,7 +22,8 @@ const result = z.object({
     RATE_LIMIT_API_MAX: z.coerce.number().default(100),
     RATE_LIMIT_API_WINDOW: z.coerce.number().default(60_000),
     RATE_LIMIT_AUTH_MAX: z.coerce.number().default(5),
-    RATE_LIMIT_AUTH_WINDOW: z.coerce.number().default(900_000)
+    RATE_LIMIT_AUTH_WINDOW: z.coerce.number().default(900_000),
+    CACHE_DEFAULT_TTL: z.coerce.number().default(3600)
 }).safeParse(process.env)
 
 if (!result.success) {
