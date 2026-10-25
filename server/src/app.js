@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import morgan from 'morgan';
-import apiRouter from './routes';
+import apiRouter from './routes/index.js';
 import prisma from './lib/prisma.js';
 import env from './config/env.js';
 import logger from './logger.js';
