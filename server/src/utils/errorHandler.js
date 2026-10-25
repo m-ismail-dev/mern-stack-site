@@ -9,7 +9,7 @@ export default function errorHandler(err, req, res, next) {
         if (err instanceof AppError) return [err.status, err.message];
         else if (err instanceof ZodError)
             return [400, 'Validation failed', err.issues.map(i => ({
-                field: i.path.map(String).join('.') || 'form',
+		field: i.path.slice(1).map(String).join('.') || 'form',
                 message: i.message,
                 code: i.code
             }))];
@@ -33,7 +33,8 @@ export default function errorHandler(err, req, res, next) {
         url: req.originalUrl,
         status,
         message: err.message,
-        stack: err?.stack
+        stack: err?.stack,
+        code: err.code
     });
 
     return res.status(status).json({ message, ...(errors && { errors }) });
