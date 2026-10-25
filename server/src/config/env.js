@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 const result = z.object({
     DATABASE_URL: z.string().min(1),
+    REDIS_URL: z.string().min(1),
 
     // example secrets by default
     JWT_ACCESS_SECRET: z.string().min(16).default("a54165045007496c15ce0365819f90ebac16d8fa6c554ffe2097282f210bfcad"),
@@ -15,7 +16,13 @@ const result = z.object({
     CLIENT_URL: z.string().min(1).default("http://localhost:5173"),
     ADMIN_EMAIL: z.string().min(1).default("adminemail@example.com"),
     ADMIN_PASSWORD: z.string().min(1).default("example admin password"),
-    LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug', 'silly']).default('info')
+    LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug', 'silly']).default('info'),
+    RATE_LIMIT_GLOBAL_MAX: z.coerce.number().default(300),
+    RATE_LIMIT_GLOBAL_WINDOW: z.coerce.number().default(60_000),
+    RATE_LIMIT_API_MAX: z.coerce.number().default(100),
+    RATE_LIMIT_API_WINDOW: z.coerce.number().default(60_000),
+    RATE_LIMIT_AUTH_MAX: z.coerce.number().default(5),
+    RATE_LIMIT_AUTH_WINDOW: z.coerce.number().default(900_000)
 }).safeParse(process.env)
 
 if (!result.success) {

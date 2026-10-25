@@ -11,6 +11,7 @@ import prisma from './lib/prisma.js';
 import env from './config/env.js';
 import logger from './logger.js';
 import errorHandler from './utils/errorHandler.js';
+import { globalLimiter, apiLimiter, authLimiter } from './middleware/rateLimiter.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +25,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '10kb' }));
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(cookieParser());
+
+app.use(globalLimiter);
+app.use('/api', apiLimiter);
+app.use('/api/auth', authLimiter)
 
 app.use('/api', apiRouter);
 app.use('/api', (req, res) => {
