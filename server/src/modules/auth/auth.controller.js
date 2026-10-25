@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import bcryp from 'bcrypt';
-import prisma from '../lib/prisma.js';
-import env from '../config/env.js';
-import logger from '../logger.js';
-import AppError from '../utils/AppError.js';
-import cache from '../lib/cache.js';
+import prisma from '../../lib/prisma.js';
+import env from '../../config/env.js';
+import logger from '../../logger.js';
+import AppError from '../../utils/AppError.js';
+import cache from '../../lib/cache.js';
 
 const cookieBase = {
     httpOnly: true,
@@ -92,21 +92,4 @@ export const logout = async (req, res) => {
     res.clearCookie('access_token', cookieBase);
     res.clearCookie('refresh_token', { ...cookieBase, path: '/api/auth/refresh' });
     res.sendStatus(204);
-};
-
-export const me = async (req, res, next) => {
-    const raw = cache.get(`user:${req.userId}`);
-    if (raw) return res.json({ user: JSON.parse(raw) });
-
-    const user = await prisma.user.findUnique({
-        where: { id: req.userId },
-        select: { id: true, email: true, firstName: true, lastName: true }
-    });
-
-    if (!user) {
-        return next(new AppError(404, 'User not found'));
-    }
-    cache.set(`user:${req.userId}`, JSON.stringify(user));
-    
-    return res.json({ user });
 };

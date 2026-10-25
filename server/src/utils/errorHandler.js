@@ -6,16 +6,21 @@ import { ZodError } from 'zod';
 
 export default function errorHandler(err, req, res, next) {
     const [status, message, errors] = (() => {
-        if (err instanceof AppError) return [err.status, err.message];
-        else if (err instanceof ZodError)
-            return [400, 'Validation failed', err.issues.map(i => ({
-		field: i.path.slice(1).map(String).join('.') || 'form',
-                message: i.message,
-                code: i.code
-            }))];
-        else if (err instanceof jwt.TokenExpiredError) return [401, 'Token expired']
-        else if (err instanceof jwt.JsonWebTokenError) return [401, 'Token invalid'];
-        else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err instanceof AppError) return [err.status, err.message, err.errors];
+        if (err instanceof ZodError)
+            return [
+                400,
+                'Validation failed',
+                err.issues.map(i => ({
+                    field: i.path.slice(1).map(String).join('.') || 'form',
+                    message: i.message,
+                    code: i.code
+                }))
+            ];
+        if (err instanceof jwt.TokenExpiredError) return [401, 'Token expired']
+        if (err instanceof jwt.JsonWebTokenError) return [401, 'Token invalid'];
+        if (err instanceof SyntaxError && err.status === 400) return [400, 'Invalid JSON payload'];
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
             switch (err.code) {
                 case 'P2002': return [409, 'Already exists'];
                 case 'P2025': return [404, 'Record not found'];
@@ -24,7 +29,8 @@ export default function errorHandler(err, req, res, next) {
                 case 'P2024': return [503, 'Service busy, try again'];
                 default: return [500, 'Internal server error'];
             }
-        } else return [500, 'Internal server error']
+        }
+        return [500, 'Internal server error']
     })();
 
     if (status >= 500) logger.error({

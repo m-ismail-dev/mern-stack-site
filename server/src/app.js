@@ -1,17 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import morgan from 'morgan';
-import apiRouter from './routes/index.js';
-import prisma from './lib/prisma.js';
+import router from './routes.js';
 import env from './config/env.js';
 import logger from './logger.js';
 import errorHandler from './utils/errorHandler.js';
-import { globalLimiter, apiLimiter, authLimiter } from './middleware/rateLimiter.middleware.js';
+import { globalLimiter } from './middleware/rateLimiter.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,10 +25,7 @@ app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(cookieParser());
 
 app.use(globalLimiter);
-app.use('/api', apiLimiter);
-app.use('/api/auth', authLimiter)
-
-app.use('/api', apiRouter);
+app.use('/api', router);
 app.use('/api', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
