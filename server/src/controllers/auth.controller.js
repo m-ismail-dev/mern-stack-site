@@ -14,7 +14,7 @@ const cookieBase = {
 };
 
 export const register = async (req, res, next) => {
-    const { email, password, firstName, lastName, role, phone } = req.body;
+    const { email, password, firstName, lastName, role, phone } = req.valid.body;
 
     if (!email || !password) {
         return next(new AppError(400, 'Email and password are required'));
@@ -29,7 +29,7 @@ export const register = async (req, res, next) => {
 };
 
 export const login = async (req, res, next) => {
-    const { email, password, rememberMe = false } = req.body;
+    const { email, password, rememberMe } = req.valid.body;
 
     if (!email || !password) {
         return next(new AppError(400, 'Email and password are required'));

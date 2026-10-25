@@ -2,12 +2,19 @@ import jwt from 'jsonwebtoken';
 import logger from '../logger.js';
 import { Prisma } from '../generated/prisma/client.ts';
 import AppError from './AppError.js';
+import { ZodError } from 'zod';
 
 export default function errorHandler(err, req, res, next) {
-    const [status, message] = (() => {
+    const [status, message, errors] = (() => {
         if (err instanceof AppError) return [err.status, err.message];
-        else if (err instanceof jwt.JsonWebTokenError) return [401, 'Token invalid'];
+        else if (err instanceof ZodError)
+            return [400, 'Validation failed', err.issues.map(i => ({
+                field: i.path.map(String).join('.') || 'form',
+                message: i.message,
+                code: i.code
+            }))];
         else if (err instanceof jwt.TokenExpiredError) return [401, 'Token expired']
+        else if (err instanceof jwt.JsonWebTokenError) return [401, 'Token invalid'];
         else if (err instanceof Prisma.PrismaClientKnownRequestError) {
             switch (err.code) {
                 case 'P2002': return [409, 'Already exists'];
@@ -29,5 +36,5 @@ export default function errorHandler(err, req, res, next) {
         stack: err?.stack
     });
 
-    return res.status(status).json({ message });
+    return res.status(status).json({ message, ...(errors && { errors }) });
 }
