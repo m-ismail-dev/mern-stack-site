@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma-sqlite"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  QOUTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  CANCELED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+}
+
+// ...User, CustomerProfile, ProviderProfile, Category, Service,
+// ProviderService, Review and Subscription stay identical
+// (except ProviderService.basePrice, see below).
+
+model ProviderService {
+  providerId Int             @map("provider_id")
+  provider   ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  serviceId  Int             @map("service_id")
+  service    Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  basePrice  Decimal?        @map("base_price")
+
+  @@id([providerId, serviceId])
+  @@map("provider_service")
+}
+
+model Booking {
+  id         Int             @id @default(autoincrement())
+  providerId Int             @map("provider_id")
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  customerId Int             @map("customer_id")
+  customer   CustomerProfile @relation(fields: [customerId], references: [id])
+  serviceId  Int             @map("service_id")
+  service    Service         @relation(fields: [serviceId], references: [id])
+
+  description String
+  attachments Json          @default("[]")
+  location    String
+  qoutedPrice Decimal       @map("qouted_price")
+  status      BookingStatus @default(PENDING)
+  review      Review?
+
+  scheduledAt DateTime @map("scheduled_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([customerId])
+  @@index([providerId])
+  @@map("bookings")
+}
